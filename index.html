@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DK Digital Profiles</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root{
+    --bg:#0B132B;
+    --panel:#1C2541;
+    --border:#3A506B;
+    --accent:#00B4D8;
+    --text:#ffffff;
+    --muted:#b8c1d1;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    background:
+      radial-gradient(circle at 10% 20%, rgba(0,180,216,.12) 0%, transparent 25%),
+      radial-gradient(circle at 80% 80%, rgba(0,180,216,.08) 0%, transparent 25%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+header{
+    height:70px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 30px;
+    background:rgba(11,19,43,.95);
+    backdrop-filter:blur(10px);
+}
+
+.logo{
+    font-size:1.4rem;
+    font-weight:700;
+    color:var(--accent);
+}
+
+.actions{
+    display:flex;
+    gap:12px;
+}
+
+button{
+    border:none;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.primary-btn{
+    background:var(--accent);
+    color:white;
+    padding:12px 18px;
+    border-radius:10px;
+    font-weight:600;
+}
+
+.primary-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 20px rgba(0,180,216,.5);
+}
+
+.container{
+    display:grid;
+    grid-template-columns:420px 1fr;
+    height:calc(100vh - 70px);
+}
+
+.editor{
+    overflow-y:auto;
+    padding:25px;
+    border-right:1px solid var(--border);
+    background:rgba(28,37,65,.95);
+}
+
+.preview-wrapper{
+    overflow:auto;
+    display:flex;
+    justify-content:center;
+    padding:30px;
+}
+
+.panel{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.panel h3{
+    margin-bottom:15px;
+    color:var(--accent);
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#111a36;
+    color:white;
+}
+
+textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.tab{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    background:#132041;
+    color:white;
+}
+
+.tab.active{
+    background:var(--accent);
+}
+
+.add-btn{
+    width:100%;
+    padding:10px;
+    background:#23335d;
+    color:white;
+    border-radius:10px;
+}
+
+.skill-row{
+    display:flex;
+    gap:10px;
+}
+
+.skills-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+}
+
+.skill-tag{
+    background:var(--accent);
+    padding:8px 12px;
+    border-radius:50px;
+    font-size:.85rem;
+}
+
+.a4{
+    width:794px;
+    min-height:1123px;
+    background:white;
+    color:#222;
+    padding:45px;
+    box-shadow:0 0 30px rgba(0,0,0,.4);
+}
+
+.cv-header{
+    display:flex;
+    gap:25px;
+    align-items:center;
+    border-bottom:2px solid #eee;
+    padding-bottom:20px;
+}
+
+.cv-photo{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    overflow:hidden;
+    background:#ddd;
+}
+
+.cv-photo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.cv-section{
+    margin-top:25px;
+}
+
+.cv-section h2{
+    color:#0B132B;
+    margin-bottom:10px;
+    border-bottom:1px solid #ddd;
+    padding-bottom:6px;
+}
+
+.skill-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.skill-pill{
+    background:#e6f8fd;
+    color:#0B132B;
+    padding:6px 12px;
+    border-radius:20px;
+}
+
+.item{
+    margin-bottom:15px;
+}
+
+.hidden{
+    display:none;
+}
+
+.cover-header{
+    margin-bottom:30px;
+}
+
+.cover-body{
+    line-height:1.8;
+}
+
+@media(max-width:1200px){
+.container{
+grid-template-columns:1fr;
+}
+
+.preview-wrapper{
+padding:20px;
+}
+
+.a4{
+width:100%;
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">DK Digital Profiles</div>
+
+<div class="actions">
+<button id="previewToggle" class="primary-btn">
+Switch Preview
+</button>
+
+<button id="downloadPdf" class="primary-btn">
+Download PDF
+</button>
+</div>
+</header>
+
+<div class="container">
+
+<div class="editor">
+
+<div class="tabs">
+<button class="tab active" id="cvTab">CV Editor</button>
+<button class="tab" id="coverTab">Cover Letter</button>
+</div>
+
+<div id="cvEditor">
+
+<div class="panel">
+<h3>Header</h3>
+
+<input id="photoUpload" type="file">
+
+<input id="name" placeholder="Full Name">
+<input id="title" placeholder="Professional Title">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<input id="linkedin" placeholder="LinkedIn / Portfolio">
+</div>
+
+<div class="panel">
+<h3>Professional Summary</h3>
+<textarea id="summary"></textarea>
+</div>
+
+<div class="panel">
+<h3>Skills</h3>
+
+<div class="skill-row">
+<input id="skillInput" placeholder="Add skill">
+<button class="primary-btn" id="addSkill">Add</button>
+</div>
+
+<div id="skillsList" class="skills-list"></div>
+</div>
+
+<div class="panel">
+<h3>Work Experience</h3>
+<div id="jobsContainer"></div>
+
+<button id="addJob" class="add-btn">
++ Add Job
+</button>
+</div>
+
+<div class="panel">
+<h3>Education</h3>
+<div id="educationContainer"></div>
+
+<button id="addEducation" class="add-btn">
++ Add Education
+</button>
+</div>
+
+</div>
+
+<div id="coverEditor" class="hidden">
+
+<div class="panel">
+<h3>Cover Letter Details</h3>
+
+<input id="manager" placeholder="Hiring Manager">
+
+<input id="company" placeholder="Target Company">
+
+<textarea id="letterBody"
+placeholder="Write your cover letter..."></textarea>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="preview-wrapper">
+
+<div id="previewCanvas" class="a4">
+
+<div id="cvPreview">
+
+<div class="cv-header">
+
+<div class="cv-photo">
+<img id="previewPhoto">
+</div>
+
+<div>
+<h1 id="previewName">Your Name</h1>
+<h3 id="previewTitle">Professional Title</h3>
+
+<p id="previewEmail"></p>
+<p id="previewPhone"></p>
+<p id="previewLinkedin"></p>
+
+</div>
+
+</div>
+
+<div class="cv-section">
+<h2>Professional Summary</h2>
+<p id="previewSummary"></p>
+</div>
+
+<div class="cv-section">
+<h2>Core Skills</h2>
+<div id="previewSkills" class="skill-grid"></div>
+</div>
+
+<div class="cv-section">
+<h2>Work Experience</h2>
+<div id="previewJobs"></div>
+</div>
+
+<div class="cv-section">
+<h2>Education</h2>
+<div id="previewEducation"></div>
+</div>
+
+</div>
+
+<div id="coverPreview" class="hidden">
+
+<div class="cover-header">
+
+<h1 id="coverName">Your Name</h1>
+
+<p id="coverContact"></p>
+
+<br>
+
+<p id="coverManager"></p>
+<p id="coverCompany"></p>
+
+</div>
+
+<div class="cover-body">
+<p id="coverLetterText"></p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let skills=[];
+let photoData='';
+let coverMode=false;
+
+const bind=(input,output)=>{
+document.getElementById(input).addEventListener('input',e=>{
+document.getElementById(output).textContent=e.target.value;
+updateCover();
+});
+};
+
+bind('name','previewName');
+bind('title','previewTitle');
+bind('email','previewEmail');
+bind('phone','previewPhone');
+bind('linkedin','previewLinkedin');
+bind('summary','previewSummary');
+
+document.getElementById('photoUpload')
+.addEventListener('change',function(){
+
+const file=this.files[0];
+if(!file) return;
+
+const reader=new FileReader();
+
+reader.onload=e=>{
+photoData=e.target.result;
+document.getElementById('previewPhoto').src=photoData;
+};
+
+reader.readAsDataURL(file);
+
+});
+
+document.getElementById('addSkill').onclick=()=>{
+
+const input=document.getElementById('skillInput');
+
+if(!input.value.trim()) return;
+
+skills.push(input.value.trim());
+
+input.value='';
+
+renderSkills();
+
+};
+
+function renderSkills(){
+
+document.getElementById('skillsList').innerHTML=
+skills.map(s=>`<span class="skill-tag">${s}</span>`).join('');
+
+document.getElementById('previewSkills').innerHTML=
+skills.map(s=>`<span class="skill-pill">${s}</span>`).join('');
+
+}
+
+document.getElementById('addJob').onclick=()=>{
+
+const container=document.getElementById('jobsContainer');
+
+const div=document.createElement('div');
+
+div.className='panel';
+
+div.innerHTML=`
+<input class="job-title" placeholder="Job Title">
+<input class="job-company" placeholder="Company">
+<input class="job-dates" placeholder="2023 - Present">
+<textarea class="job-achievements" placeholder="Achievements"></textarea>
+`;
+
+container.appendChild(div);
+
+attachPreviewUpdate();
+
+};
+
+document.getElementById('addEducation').onclick=()=>{
+
+const container=document.getElementById('educationContainer');
+
+const div=document.createElement('div');
+
+div.className='panel';
+
+div.innerHTML=`
+<input class="edu-degree" placeholder="Degree">
+<input class="edu-school" placeholder="Institution">
+<input class="edu-year" placeholder="Graduation Year">
+`;
+
+container.appendChild(div);
+
+attachPreviewUpdate();
+
+};
+
+function attachPreviewUpdate(){
+
+document.querySelectorAll(
+'.job-title,.job-company,.job-dates,.job-achievements,.edu-degree,.edu-school,.edu-year'
+).forEach(el=>{
+
+el.addEventListener('input',renderDynamicSections);
+
+});
+
+}
+
+function renderDynamicSections(){
+
+const jobs=[];
+
+document.querySelectorAll('#jobsContainer .panel')
+.forEach(p=>{
+
+jobs.push({
+title:p.querySelector('.job-title').value,
+company:p.querySelector('.job-company').value,
+dates:p.querySelector('.job-dates').value,
+ach:p.querySelector('.job-achievements').value
+});
+
+});
+
+document.getElementById('previewJobs').innerHTML=
+jobs.map(j=>`
+<div class="item">
+<h3>${j.title}</h3>
+<strong>${j.company}</strong>
+<div>${j.dates}</div>
+<p>${j.ach.replace(/\n/g,'<br>')}</p>
+</div>
+`).join('');
+
+const edu=[];
+
+document.querySelectorAll('#educationContainer .panel')
+.forEach(p=>{
+
+edu.push({
+degree:p.querySelector('.edu-degree').value,
+school:p.querySelector('.edu-school').value,
+year:p.querySelector('.edu-year').value
+});
+
+});
+
+document.getElementById('previewEducation').innerHTML=
+edu.map(e=>`
+<div class="item">
+<h3>${e.degree}</h3>
+<div>${e.school}</div>
+<div>${e.year}</div>
+</div>
+`).join('');
+
+}
+
+function updateCover(){
+
+document.getElementById('coverName').textContent=
+document.getElementById('name').value || 'Your Name';
+
+document.getElementById('coverContact').innerHTML=
+`
+${document.getElementById('email').value}<br>
+${document.getElementById('phone').value}<br>
+${document.getElementById('linkedin').value}
+`;
+
+}
+
+document.getElementById('manager')
+.addEventListener('input',e=>{
+document.getElementById('coverManager').textContent=e.target.value;
+});
+
+document.getElementById('company')
+.addEventListener('input',e=>{
+document.getElementById('coverCompany').textContent=e.target.value;
+});
+
+document.getElementById('letterBody')
+.addEventListener('input',e=>{
+document.getElementById('coverLetterText').innerHTML=
+e.target.value.replace(/\n/g,'<br><br>');
+});
+
+document.getElementById('previewToggle').onclick=()=>{
+
+coverMode=!coverMode;
+
+document.getElementById('cvPreview')
+.classList.toggle('hidden');
+
+document.getElementById('coverPreview')
+.classList.toggle('hidden');
+
+};
+
+document.getElementById('cvTab').onclick=()=>{
+document.getElementById('cvEditor').classList.remove('hidden');
+document.getElementById('coverEditor').classList.add('hidden');
+};
+
+document.getElementById('coverTab').onclick=()=>{
+document.getElementById('coverEditor').classList.remove('hidden');
+document.getElementById('cvEditor').classList.add('hidden');
+};
+
+document.getElementById('downloadPdf').onclick=()=>{
+
+const element=document.getElementById('previewCanvas');
+
+html2pdf()
+.set({
+margin:0,
+filename:'DK-Digital-Profiles.pdf',
+image:{type:'jpeg',quality:1},
+html2canvas:{scale:3},
+jsPDF:{
+unit:'px',
+format:[794,1123],
+orientation:'portrait'
+}
+})
+.from(element)
+.save();
+
+};
+
+</script>
+
+</body>
+</html>
